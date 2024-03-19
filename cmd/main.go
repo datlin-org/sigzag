@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"github.com/KevinFasusi/sigzag/pkg/crawler"
+	"github.com/KevinFasusi/sigzag/pkg/utils"
 	"path/filepath"
 )
 
 func main() {
-	// creates a ramdisk with running instances of sigzag
 	root := flag.String("root", ".", "Root directory")
+	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
+	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
+
 	flag.Parse()
 	path, err := filepath.Abs(*root)
 	if err != nil {
@@ -19,7 +22,18 @@ func main() {
 		Ext:  "",
 		Size: 0,
 	}
-	generateManifest(path, config)
+	if !*compareManifest && !*compareMerkle {
+		generateManifest(path, config)
+	}
+
+	if *compareManifest {
+		var m utils.Manager
+		m.CompareManifest(flag.Args()[0], flag.Args()[1])
+	}
+	if *compareMerkle {
+		var m utils.Manager
+		m.CompareMerkle(flag.Args()[0], flag.Args()[1])
+	}
 }
 
 func generateManifest(path string, config crawler.Config) {
