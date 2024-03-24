@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 type FileType int
@@ -28,9 +29,10 @@ func (f FileType) Strings() string {
 	}[f]
 }
 
+//ToDo: Make sure level is less than nesting depth of the directory
+
 type Config struct {
-	Ext  string
-	Size int64
+	Level int
 	//HashType hashType
 }
 
@@ -61,6 +63,15 @@ func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, err erro
 		go func() {
 			signature := d.FileSignature(path)
 			d.FileDigests = append(d.FileDigests, signature)
+			p := strings.Split(path, string(os.PathSeparator))
+
+			var nestedPath []string
+			if (len(p)-1)-d.Conf.Level < len(p) {
+				nestedPath = p[(len(p)-1)-d.Conf.Level:]
+			} else {
+				nestedPath = p[(len(p) - 1):]
+			}
+			path = strings.Join(nestedPath, string(os.PathSeparator))
 			s := Sig{Asset: path, Digest: fmt.Sprintf("%x", signature)}
 			d.Signatures = append(d.Signatures, &s)
 		}()
