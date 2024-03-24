@@ -33,11 +33,11 @@ func (m *Manager) CompareMerkle(file1 string, file2 string) {
 func (m *Manager) CompareManifest(file1 string, file2 string) {
 	f1, err := os.ReadFile(file1)
 	if err != nil {
-		log.Print("File 1 not found,", err)
+		log.Fatal("File 1 not found,", err)
 	}
 	f2, err := os.ReadFile(file2)
 	if err != nil {
-		log.Fatal()
+		log.Fatal("File 2 not found,", err)
 	}
 	var s1, s2 []crawler.Sig
 

@@ -96,12 +96,12 @@ func (d *DirectoryCrawler) FileSignature(path string) []byte {
 	return sum
 }
 
-func (d *DirectoryCrawler) Write(fileType FileType) {
+func (d *DirectoryCrawler) Write(fileType FileType) error {
 	s := sha256.New()
 	rb := make([]byte, 32)
 	_, err := rand.Read(rb)
 	if err != nil {
-		return
+		return fmt.Errorf("randomise bytes failed, %s", err)
 	}
 	s.Write(rb)
 	switch fileType {
@@ -112,6 +112,7 @@ func (d *DirectoryCrawler) Write(fileType FileType) {
 		fileName := fmt.Sprintf("%s-%x.json", MerkleTree.Strings(), s.Sum(nil))
 		d.writeMerkleTree(fileName)
 	}
+	return nil
 }
 
 func (d *DirectoryCrawler) writeManifest(fileName string) {

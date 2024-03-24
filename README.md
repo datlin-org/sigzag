@@ -1,21 +1,31 @@
 # SigZag
 
-Sigzag is a library for fingerprinting digital asset, generating manifests and managing 
-digital inventory using traditional hashing functions and [Hometree](https://github.com/KevinFasusi/hometree) a homomorphic merkle tree.
+Sigzag is a small utility for signing digital assets and generating a manifests.
 
 - Cryptographically sign content
 - Generate a manifest
 - Compare manifests
 - Diff manifests
-- SPDX compliant formats (TBC)
 - Manifests in Json and gRPC format
 
 ## Install
 
+Clone repository:
+
+```shell
+git clone https://github.com/KevinFasusi/sigzag.git
+```
+
+Build:
+
+```shell
+go build cmd/main.go
+
+```
 
 ## Example
 
-Generate a manifest and merkletree for all the files in a directory:
+Generate a manifest for all the files in a directory:
 
 ```shell
 $ ./sigzag --root  path/to/directory/
