@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type FileType int
@@ -49,8 +50,9 @@ type DirectoryCrawler struct {
 }
 
 type Sig struct {
-	Asset  string `json:"asset"`
-	Digest string `json:"sha256"`
+	Asset     string `json:"asset"`
+	Digest    string `json:"sha256"`
+	Timestamp string `json:"timestamp"`
 }
 
 func (d *DirectoryCrawler) Crawl() error {
@@ -72,7 +74,10 @@ func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, err erro
 				nestedPath = p[(len(p) - 1):]
 			}
 			path = strings.Join(nestedPath, string(os.PathSeparator))
-			s := Sig{Asset: path, Digest: fmt.Sprintf("%x", signature)}
+			s := Sig{Asset: path,
+				Digest:    fmt.Sprintf("%x", signature),
+				Timestamp: time.Now().Format(time.UnixDate),
+			}
 			d.Signatures = append(d.Signatures, &s)
 		}()
 	}
