@@ -136,21 +136,27 @@ func (d *DirectoryCrawler) Write(fileType FileType) error {
 	var fileName string
 	switch fileType {
 	case Manifest:
+		timeStamp := time.Now()
+		timeStampFmt := fmt.Sprintf("%d-%d-%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
+			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%x.json", Manifest.Strings(), s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%x.json", Manifest.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
 		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%x.json", d.Conf.OutputFile, Manifest.Strings(), s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, Manifest.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeManifest(fileName)
 	case MerkleTree:
+		timeStamp := time.Now()
+		timeStampFmt := fmt.Sprintf("%d-%d-%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
+			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%x.json", MerkleTree.Strings(), s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%x.json", MerkleTree.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
 		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%x.json", d.Conf.OutputFile, MerkleTree.Strings(), s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MerkleTree.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeMerkleTree(fileName)
 	}
