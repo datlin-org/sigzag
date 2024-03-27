@@ -30,11 +30,22 @@ func (f FileType) Strings() string {
 	}[f]
 }
 
-//ToDo: Make sure level is less than nesting depth of the directory
+type labels int
+
+const (
+	SIGZAG labels = iota
+)
+
+func (l labels) Strings() string {
+	return [...]string{
+		"sigzag",
+	}[l]
+}
 
 type Config struct {
-	Level int
-	//HashType hashType
+	Root       int
+	Depth      int
+	OutputFile string
 }
 
 type Crawler interface {
@@ -56,7 +67,6 @@ type Sig struct {
 }
 
 func (d *DirectoryCrawler) Crawl() error {
-
 	return filepath.WalkDir(d.Dir, d.signatureWalk)
 }
 
@@ -66,19 +76,16 @@ func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, err erro
 			signature := d.FileSignature(path)
 			d.FileDigests = append(d.FileDigests, signature)
 			p := strings.Split(path, string(os.PathSeparator))
-
-			var nestedPath []string
-			if (len(p)-1)-d.Conf.Level < len(p) {
-				nestedPath = p[(len(p)-1)-d.Conf.Level:]
-			} else {
-				nestedPath = p[(len(p) - 1):]
+			p = p[d.Conf.Root:]
+			if len(p) <= d.Conf.Depth {
+				path = strings.Join(p, string(os.PathSeparator))
+				s := Sig{
+					Asset:     path,
+					Digest:    fmt.Sprintf("%x", signature),
+					Timestamp: time.Now().Format(time.UnixDate),
+				}
+				d.Signatures = append(d.Signatures, &s)
 			}
-			path = strings.Join(nestedPath, string(os.PathSeparator))
-			s := Sig{Asset: path,
-				Digest:    fmt.Sprintf("%x", signature),
-				Timestamp: time.Now().Format(time.UnixDate),
-			}
-			d.Signatures = append(d.Signatures, &s)
 		}()
 	}
 	return nil
@@ -120,12 +127,25 @@ func (d *DirectoryCrawler) Write(fileType FileType) error {
 		return fmt.Errorf("randomise bytes failed, %s", err)
 	}
 	s.Write(rb)
+	var fileName string
 	switch fileType {
 	case Manifest:
-		fileName := fmt.Sprintf("%s-%x.json", Manifest.Strings(), s.Sum(nil))
+		if d.Conf.OutputFile == SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%x.json", Manifest.Strings(), s.Sum(nil))
+		}
+
+		if d.Conf.OutputFile != SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%s-%x.json", d.Conf.OutputFile, Manifest.Strings(), s.Sum(nil))
+		}
 		d.writeManifest(fileName)
 	case MerkleTree:
-		fileName := fmt.Sprintf("%s-%x.json", MerkleTree.Strings(), s.Sum(nil))
+		if d.Conf.OutputFile == SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%x.json", MerkleTree.Strings(), s.Sum(nil))
+		}
+
+		if d.Conf.OutputFile != SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%s-%x.json", d.Conf.OutputFile, MerkleTree.Strings(), s.Sum(nil))
+		}
 		d.writeMerkleTree(fileName)
 	}
 	return nil

@@ -13,34 +13,36 @@ import (
 
 func main() {
 	root := flag.String("root", ".", "Root directory")
-	level := flag.Int("level", 3, "Directory nesting depth")
+	level := flag.Int("level", 3, "Maximum directory nesting depth")
+	outputFile := flag.String("output-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
 
 	flag.Parse()
 	path, err := filepath.Abs(*root)
 
+	if *level <= 0 {
+		log.Fatalf("level must be greater than 0. --level %d flag set\n", *level)
+	}
+
 	if err != nil {
 		log.Fatalf("path error: %s", err)
 	}
+	length := len(strings.Split(path, string(os.PathSeparator)))
 
-	levelOK, err, length := checkLevel(path, *level)
-	if err != nil {
-		log.Fatalf("%s Inapproriate level set. Maximum nesting exepected < %d, got %d\n", err, length-1, *level)
+	levelStart := length - 1
+	config := crawler.Config{
+		Root:       levelStart,
+		Depth:      *level + 1,
+		OutputFile: *outputFile,
 	}
 
-	if levelOK {
-		config := crawler.Config{
-			Level: *level,
-		}
-		if !*compareManifest && !*compareMerkle {
-			err = generateManifest(path, config)
-			if err != nil {
-				fmt.Printf("error generating manifests, %s", err)
-			}
+	if !*compareManifest && !*compareMerkle {
+		err = generateManifest(path, config)
+		if err != nil {
+			fmt.Printf("error generating manifests, %s", err)
 		}
 	}
-
 	if *compareManifest {
 		var m utils.Manager
 		m.CompareManifest(flag.Args()[0], flag.Args()[1])
@@ -49,14 +51,6 @@ func main() {
 		var m utils.Manager
 		m.CompareMerkle(flag.Args()[0], flag.Args()[1])
 	}
-}
-
-func checkLevel(path string, level int) (bool, error, int) {
-	p := strings.Split(path, string(os.PathSeparator))
-	if level >= len(p) {
-		return false, fmt.Errorf("absolute path == %d nested levels. ", len(p)), len(p)
-	}
-	return true, nil, 0
 }
 
 func generateManifest(path string, config crawler.Config) error {
