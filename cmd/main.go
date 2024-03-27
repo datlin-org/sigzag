@@ -13,7 +13,7 @@ import (
 
 func main() {
 	root := flag.String("root", ".", "Root directory")
-	level := flag.Int("level", 3, "Maximum directory nesting depth")
+	level := flag.Int("level", 2, "Maximum directory nesting depth")
 	outputFile := flag.String("output-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")

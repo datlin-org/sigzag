@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -70,8 +71,10 @@ func (d *DirectoryCrawler) Crawl() error {
 	return filepath.WalkDir(d.Dir, d.signatureWalk)
 }
 
-func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, err error) error {
+func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, _ error) error {
+	var wg sync.WaitGroup
 	if !info.IsDir() {
+		wg.Add(1)
 		go func() {
 			signature := d.FileSignature(path)
 			d.FileDigests = append(d.FileDigests, signature)
@@ -85,8 +88,11 @@ func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, err erro
 					Timestamp: time.Now().Format(time.UnixDate),
 				}
 				d.Signatures = append(d.Signatures, &s)
+
 			}
+			wg.Done()
 		}()
+		wg.Wait()
 	}
 	return nil
 }
