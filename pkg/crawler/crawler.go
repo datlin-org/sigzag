@@ -17,29 +17,25 @@ import (
 	"time"
 )
 
-type FileType int
-
-const (
-	Manifest FileType = iota
-	MerkleTree
-)
-
-func (f FileType) Strings() string {
-	return [...]string{
-		"manifest",
-		"merkletree",
-	}[f]
-}
-
 type labels int
 
 const (
-	SIGZAG labels = iota
+	MANIFEST labels = iota
+	MERKLETREE
+	SIGZAG
+	ASSET
+	DIFF
+	HISTORY
 )
 
 func (l labels) Strings() string {
 	return [...]string{
+		"manifest",
+		"merkletree",
 		"sigzag",
+		"asset",
+		"diff",
+		"history",
 	}[l]
 }
 
@@ -124,7 +120,7 @@ func (d *DirectoryCrawler) FileSignature(path string) []byte {
 	return sum
 }
 
-func (d *DirectoryCrawler) Write(fileType FileType) error {
+func (d *DirectoryCrawler) Write(fileType labels) error {
 	s := sha256.New()
 	rb := make([]byte, 32)
 	_, err := rand.Read(rb)
@@ -134,30 +130,32 @@ func (d *DirectoryCrawler) Write(fileType FileType) error {
 	s.Write(rb)
 	var fileName string
 	switch fileType {
-	case Manifest:
+	case MANIFEST:
 		timeStamp := time.Now()
 		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%x.json", Manifest.Strings(), timeStampFmt, s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%x.json", MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
 		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, Manifest.Strings(), timeStampFmt, s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeManifest(fileName)
-	case MerkleTree:
+	case MERKLETREE:
 		timeStamp := time.Now()
 		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%x.json", MerkleTree.Strings(), timeStampFmt, s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%x.json", MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
 		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MerkleTree.Strings(), timeStampFmt, s.Sum(nil))
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeMerkleTree(fileName)
+	default:
+		panic("unhandled default case")
 	}
 	return nil
 }
