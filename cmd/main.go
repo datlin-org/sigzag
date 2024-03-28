@@ -14,6 +14,7 @@ import (
 func main() {
 	root := flag.String("root", ".", "Root directory")
 	level := flag.Int("level", 2, "Maximum directory nesting depth")
+	diffManifest := flag.Bool("diff", false, "Compare two manifests and return the difference if any")
 	outputFile := flag.String("output-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
@@ -37,11 +38,16 @@ func main() {
 		OutputFile: *outputFile,
 	}
 
-	if !*compareManifest && !*compareMerkle {
+	if !*compareManifest && !*compareMerkle && !*diffManifest {
 		err = generateManifest(path, config)
 		if err != nil {
 			fmt.Printf("error generating manifests, %s", err)
 		}
+	}
+
+	if *diffManifest {
+		var m utils.Manager
+		m.Diff(flag.Args()[0], flag.Args()[1])
 	}
 	if *compareManifest {
 		var m utils.Manager

@@ -1,6 +1,6 @@
 # SigZag
 
-Sigzag is a small utility for signing digital assets and generating a manifests.
+Sigzag is a small utility for signing digital assets and generating manifests.
 
 - Cryptographically sign content
 - Generate a manifest
@@ -19,8 +19,14 @@ git clone https://github.com/KevinFasusi/sigzag.git
 Build:
 
 ```shell
-go build cmd/main.go
+go build main.go -o sigzag
+```
 
+### Linux
+
+Move the binary from the build step into `/opt/utils` directory and add to your distribution's `PATH` variable:
+```
+export PATH="$PATH:/opt/utils"
 ```
 
 ## Example
@@ -28,12 +34,14 @@ go build cmd/main.go
 Generate a manifest for all the files in a directory:
 
 ```shell
-$ ./sigzag --root  path/to/directory/
+$ sigzag --root  path/to/directory/
 ```
 Json file Output:
 ```
-manifest-0b60f8c9b4fa19bcb391276a3cdd3363d9efa0532201262cdc6c6e0881928dfa.json
+manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a568b6a1f3609.json
 ```
+
+The manifest file name is composed as `manifest-date-time-SHA256.json`
 
 Json contents:
 
@@ -92,27 +100,42 @@ Json contents:
 ]
 ```
 
+### Compare Manifests
+
 Compare the manifests:
 
 ```shell
-$ ./sigzag --compare-manifest manifest-0b60f8c9b4fa19bcb391276a3cdd3363d9efa0532201262cdc6c6e0881928dfa.json \
-    manifest-0b60f8c9b4fa19bcb391276a3cdd3363d9efa0532201262cdc6c6e0881928dfa.json 
+$ sigzag --compare-manifest manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a568b6a1f3609.json \
+manifest-2024328-8857-18fb3f4bcad83115ca08d2de456b63582acc7bf97e233f83f985ce63b4a9c50d.json
 ```
 Output:
 ```
 Equal:true
 ```
 
+### Diff Manifests
+
+```shell
+$ sizg --diff manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a568b6a1f3609.json \
+manifest-2024328-8857-18fb3f4bcad83115ca08d2de456b63582acc7bf97e233f83f985ce63b4a9c50d.json
+```
+output file json:
+
+```
+diff-2024328-81357.json
+```
+
+### Rename Json
 Prepend output file with alternative string:
 
 ```shell
-$ ./sigzag  --output-file tango
+$ sigzag  --output-file tango
 ```
 
 Output:
 ```
-tango-manifest-71cad6089ac2a094f068c302d31e11949c0125543eb432032268ccc658ffc3de.json
-tango-merkletree-af78ae7ee5e3151d8d2d3d80da098b5f24fa53302b6db09f6e3f869e072a9e0c.json
+tango-manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a568b6a1f3609.json
+tango-merkletree-2024328-8853-2a04c17860212ddce9ea2c1f921da29d834f762e700b609f281478a72ff63192.json
 ```
 
 ## Flags
@@ -121,6 +144,7 @@ tango-merkletree-af78ae7ee5e3151d8d2d3d80da098b5f24fa53302b6db09f6e3f869e072a9e0
 |:-------------------|:---------------------------------------------------------|
 | --root             | Root directory to descend. Defaults to working directory |
 | --level            | Directory nesting depth (default==3)                     |
-| --output-file      | Prepends file with string                                |
+| --diff             | Compare two manifests and return the difference if any   |
+| --output-file      | Prepends file with string to filename                    |
 | --compare-manifest | Compare manifest                                         |
 | --compare-merkle   | Compare merkle tree                                      |

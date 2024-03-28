@@ -88,7 +88,6 @@ func (d *DirectoryCrawler) signatureWalk(path string, info fs.DirEntry, _ error)
 					Timestamp: time.Now().Format(time.UnixDate),
 				}
 				d.Signatures = append(d.Signatures, &s)
-
 			}
 			wg.Done()
 		}()
@@ -137,7 +136,7 @@ func (d *DirectoryCrawler) Write(fileType FileType) error {
 	switch fileType {
 	case Manifest:
 		timeStamp := time.Now()
-		timeStampFmt := fmt.Sprintf("%d-%d-%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
+		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", Manifest.Strings(), timeStampFmt, s.Sum(nil))
@@ -149,7 +148,7 @@ func (d *DirectoryCrawler) Write(fileType FileType) error {
 		d.writeManifest(fileName)
 	case MerkleTree:
 		timeStamp := time.Now()
-		timeStampFmt := fmt.Sprintf("%d-%d-%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
+		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.OutputFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", MerkleTree.Strings(), timeStampFmt, s.Sum(nil))
