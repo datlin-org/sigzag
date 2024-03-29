@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/KevinFasusi/hometree"
-	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -43,10 +42,6 @@ type Config struct {
 	Root       int
 	Depth      int
 	OutputFile string
-}
-
-type Crawler interface {
-	Crawl(root string, out io.Writer) error
 }
 
 type DirectoryCrawler struct {
@@ -170,17 +165,25 @@ func (d *DirectoryCrawler) writeManifest(fileName string) {
 }
 
 func (d *DirectoryCrawler) writeMerkleTree(fileName string) {
-	var homeTree hometree.MerkleTree
-	home, merkleErr := homeTree.Build(d.FileDigests)
-	if merkleErr.Err != nil {
-		return
+	home, err := d.buildMerkleTree()
+	if err != nil {
+		log.Fatalf("building merkle tree failed")
 	}
 	file, _ := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 	sigJson, _ := json.Marshal(home)
-	_, err := file.Write(sigJson)
+	_, err = file.Write(sigJson)
 	if err != nil {
-		return
+		log.Print("File failed to write", err)
 	}
+}
+
+func (d *DirectoryCrawler) buildMerkleTree() (*hometree.Node, error) {
+	var homeTree hometree.MerkleTree
+	home, merkleErr := homeTree.Build(d.FileDigests)
+	if merkleErr.Err != nil {
+		return nil, fmt.Errorf("merkle tree err", merkleErr.Error())
+	}
+	return home, nil
 }
 
 func NewCrawler(root string, conf *Config) *DirectoryCrawler {

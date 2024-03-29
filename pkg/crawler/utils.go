@@ -19,28 +19,20 @@ type Util interface {
 }
 
 type Manager struct {
-	Sig  []Sig
-	Hist []History
+	Sig    []Sig
+	Hist   []History
+	Merkle hometree.Node
 }
 
 func (m *Manager) Compare(file1 string, file2 string, value labels) {
 	switch value {
 	case MANIFEST:
-		s1 := readManifest(file1)
-		s2 := readManifest(file2)
+		s1 := Read(file1, MANIFEST).Sig
+		s2 := Read(file2, MANIFEST).Sig
 		fmt.Printf("Equal:%v\n", reflect.DeepEqual(s1, s2))
 	case MERKLETREE:
-		f1, err := os.ReadFile(file1)
-		if err != nil {
-			log.Print("File 1 not found,", err)
-		}
-		f2, err := os.ReadFile(file2)
-		if err != nil {
-			log.Fatal()
-		}
-		var n1, n2 hometree.Node
-		_ = json.Unmarshal(f1, &n1)
-		_ = json.Unmarshal(f2, &n2)
+		n1 := Read(file1, MERKLETREE).Merkle
+		n2 := Read(file2, MERKLETREE).Merkle
 		fmt.Printf("Equal:%v\n", reflect.DeepEqual(n1, n2))
 	default:
 		panic("unhandled default case")
@@ -49,8 +41,8 @@ func (m *Manager) Compare(file1 string, file2 string, value labels) {
 
 func (m *Manager) Diff(m1 string, m2 string) {
 	var remove []Sig
-	s1 := readManifest(m1)
-	s2 := readManifest(m2)
+	s1 := Read(m1, MANIFEST).Sig
+	s2 := Read(m2, MANIFEST).Sig
 	for _, i := range s2 {
 		for _, j := range s1 {
 			if i.Digest == j.Digest {
@@ -80,7 +72,7 @@ func (m *Manager) Write(label labels) {
 		sigJson, _ := json.Marshal(m.Hist)
 		toFile(label, sigJson)
 	default:
-		panic("unhandled default case")
+		log.Fatalf("unknown signature type, expected %s or %s, got==%s", DIFF.Strings(), HISTORY.Strings(), label.Strings())
 	}
 }
 
@@ -95,14 +87,32 @@ func toFile(label labels, toJson []byte) {
 	}
 }
 
-func readManifest(file string) []Sig {
+func Read(file string, label labels) Manager {
 	f, err := os.ReadFile(file)
 	if err != nil {
-		log.Fatal("File 1 not found,", err)
+		log.Fatal("File not found,", err)
 	}
-	var sig []Sig
-	_ = json.Unmarshal(f, &sig)
-	return sig
+
+	switch label {
+	case MANIFEST:
+		var sig []Sig
+		_ = json.Unmarshal(f, &sig)
+		return Manager{
+			Sig:    sig,
+			Hist:   nil,
+			Merkle: hometree.Node{},
+		}
+	case MERKLETREE:
+		var n hometree.Node
+		_ = json.Unmarshal(f, &n)
+		return Manager{
+			Sig:    nil,
+			Hist:   nil,
+			Merkle: n}
+	default:
+		log.Fatalf("unknown signature type, expected %s or %s, got==%s", MANIFEST.Strings(), MERKLETREE.Strings(), label.Strings())
+	}
+	return Manager{}
 }
 
 type History struct {
@@ -115,7 +125,7 @@ func (m *Manager) History(asset string, args []string) {
 	var history History
 	var historyRec []History
 	for _, i := range args {
-		f := readManifest(i)
+		f := Read(i, MANIFEST).Sig
 		for _, j := range f {
 			if asset == j.Asset {
 				rec = append(rec, j)
