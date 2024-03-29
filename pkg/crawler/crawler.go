@@ -39,9 +39,9 @@ func (l labels) Strings() string {
 }
 
 type Config struct {
-	Root       int
-	Depth      int
-	OutputFile string
+	Root    int
+	Depth   int
+	TagFile string
 }
 
 type DirectoryCrawler struct {
@@ -56,6 +56,12 @@ type Sig struct {
 	Asset     string `json:"asset"`
 	Digest    string `json:"sha256"`
 	Timestamp string `json:"timestamp"`
+}
+
+type SigTimeless struct {
+	Asset     string `json:"asset"`
+	Digest    string `json:"sha256"`
+	Timestamp string `json:"_"`
 }
 
 func (d *DirectoryCrawler) Crawl() error {
@@ -115,12 +121,12 @@ func (d *DirectoryCrawler) FileSignature(path string) []byte {
 	return sum
 }
 
-func (d *DirectoryCrawler) Write(fileType labels) error {
+func (d *DirectoryCrawler) Write(fileType labels) (string, error) {
 	s := sha256.New()
 	rb := make([]byte, 32)
 	_, err := rand.Read(rb)
 	if err != nil {
-		return fmt.Errorf("randomise bytes failed, %s", err)
+		return "", fmt.Errorf("randomise bytes failed, %s", err)
 	}
 	s.Write(rb)
 	var fileName string
@@ -129,30 +135,33 @@ func (d *DirectoryCrawler) Write(fileType labels) error {
 		timeStamp := time.Now()
 		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
-		if d.Conf.OutputFile == SIGZAG.Strings() {
+		if d.Conf.TagFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
-		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
+		if d.Conf.TagFile != SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.TagFile, MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeManifest(fileName)
+		return fileName, nil
 	case MERKLETREE:
 		timeStamp := time.Now()
 		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
 			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
-		if d.Conf.OutputFile == SIGZAG.Strings() {
+		if d.Conf.TagFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
 
-		if d.Conf.OutputFile != SIGZAG.Strings() {
-			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.OutputFile, MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
+		if d.Conf.TagFile != SIGZAG.Strings() {
+			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.TagFile, MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
 		d.writeMerkleTree(fileName)
+		return fileName, nil
+
 	default:
 		panic("unhandled default case")
 	}
-	return nil
+	return "", nil
 }
 
 func (d *DirectoryCrawler) writeManifest(fileName string) {
@@ -181,7 +190,7 @@ func (d *DirectoryCrawler) buildMerkleTree() (*hometree.Node, error) {
 	var homeTree hometree.MerkleTree
 	home, merkleErr := homeTree.Build(d.FileDigests)
 	if merkleErr.Err != nil {
-		return nil, fmt.Errorf("merkle tree err", merkleErr.Error())
+		return nil, fmt.Errorf("merkle tree err, %s", merkleErr.Error())
 	}
 	return home, nil
 }

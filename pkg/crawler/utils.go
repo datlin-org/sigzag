@@ -27,22 +27,24 @@ type Manager struct {
 func (m *Manager) Compare(file1 string, file2 string, value labels) {
 	switch value {
 	case MANIFEST:
-		s1 := Read(file1, MANIFEST).Sig
-		s2 := Read(file2, MANIFEST).Sig
+		s1 := Read(file1, MANIFEST, true).Sig
+		s2 := Read(file2, MANIFEST, true).Sig
+		//strip timestamp
 		fmt.Printf("Equal:%v\n", reflect.DeepEqual(s1, s2))
 	case MERKLETREE:
-		n1 := Read(file1, MERKLETREE).Merkle
-		n2 := Read(file2, MERKLETREE).Merkle
+		n1 := Read(file1, MERKLETREE, true).Merkle
+		n2 := Read(file2, MERKLETREE, true).Merkle
+		//strip timestamp
 		fmt.Printf("Equal:%v\n", reflect.DeepEqual(n1, n2))
 	default:
 		panic("unhandled default case")
 	}
 }
 
-func (m *Manager) Diff(m1 string, m2 string) {
+func (m *Manager) Diff(m1 string, m2 string, timeless bool) []Sig {
 	var remove []Sig
-	s1 := Read(m1, MANIFEST).Sig
-	s2 := Read(m2, MANIFEST).Sig
+	s1 := Read(m1, MANIFEST, timeless).Sig
+	s2 := Read(m2, MANIFEST, timeless).Sig
 	for _, i := range s2 {
 		for _, j := range s1 {
 			if i.Digest == j.Digest {
@@ -61,6 +63,7 @@ func (m *Manager) Diff(m1 string, m2 string) {
 	}
 	m.Sig = s2
 	m.Write(DIFF)
+	return m.Sig
 }
 
 func (m *Manager) Write(label labels) {
@@ -87,7 +90,7 @@ func toFile(label labels, toJson []byte) {
 	}
 }
 
-func Read(file string, label labels) Manager {
+func Read(file string, label labels, timeless bool) Manager {
 	f, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal("File not found,", err)
@@ -96,7 +99,13 @@ func Read(file string, label labels) Manager {
 	switch label {
 	case MANIFEST:
 		var sig []Sig
-		_ = json.Unmarshal(f, &sig)
+		var sigTime []SigTimeless
+		if timeless {
+			_ = json.Unmarshal(f, &sigTime)
+		} else {
+			_ = json.Unmarshal(f, &sig)
+		}
+
 		return Manager{
 			Sig:    sig,
 			Hist:   nil,
@@ -125,7 +134,7 @@ func (m *Manager) History(asset string, args []string) {
 	var history History
 	var historyRec []History
 	for _, i := range args {
-		f := Read(i, MANIFEST).Sig
+		f := Read(i, MANIFEST, false).Sig
 		for _, j := range f {
 			if asset == j.Asset {
 				rec = append(rec, j)
@@ -137,4 +146,21 @@ func (m *Manager) History(asset string, args []string) {
 	historyRec = append(historyRec, history)
 	m.Hist = historyRec
 	m.Write(HISTORY)
+}
+
+func (m *Manager) GenerateManifest(path string, config Config) (string, string, error) {
+	crawl := NewCrawler(path, &config)
+	err := crawl.Crawl()
+	if err != nil {
+		return "", "", fmt.Errorf("unable to crawl directory, %s", err)
+	}
+	manifestFile, err := crawl.Write(MANIFEST)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to write manifest. %s", err)
+	}
+	merkleFile, err := crawl.Write(MERKLETREE)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to write Merkle tree. %s", err)
+	}
+	return manifestFile, merkleFile, nil
 }

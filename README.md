@@ -119,17 +119,67 @@ Equal:true
 $ sizg --diff manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a568b6a1f3609.json \
 manifest-2024328-8857-18fb3f4bcad83115ca08d2de456b63582acc7bf97e233f83f985ce63b4a9c50d.json
 ```
-output file json:
+writes to `diff-date-time.json` file:
 
 ```
 diff-2024328-81357.json
+```
+
+### Compile History for an Asset
+
+The following will search all manifest (using the wildcard) jsons for entries equal to the asset specified:
+
+```shell
+$ sigzag --asset testdata/testdata1.md --history manifest-*.json
+```
+
+writes output to a `history-date-time.json` file:
+
+```
+history-2024329-135354.json
+```
+
+file contents:
+```
+[
+  {
+    "Asset": "testdata/testdata1.md",
+    "History": [
+      {
+        "asset": "testdata/testdata1.md",
+        "sha256": "84ef1496749b2316580228132c2b5b4f084f9ba7e3eaa7227e4c7d3e72a956ec",
+        "timestamp": "Fri Mar 29 13:48:49 GMT 2024"
+      },
+      {
+        "asset": "testdata/testdata1.md",
+        "sha256": "e6dbed6368694ce31739583c9f93d7fa97aaa7e0d0549ff00810ee193e10e392",
+        "timestamp": "Fri Mar 29 13:53:11 GMT 2024"
+      },
+      {
+        "asset": "testdata/testdata1.md",
+        "sha256": "977f147f643fd9d1fe78c54afcdcb078d46b8bbc6acbba3d39206fb63482ecfc",
+        "timestamp": "Fri Mar 29 13:53:17 GMT 2024"
+      },
+      {
+        "asset": "testdata/testdata1.md",
+        "sha256": "b0fc3d0414b5c7b91a4760915efaffdd447b0a416143ce7ef57656033394f7eb",
+        "timestamp": "Fri Mar 29 13:53:20 GMT 2024"
+      },
+      {
+        "asset": "testdata/testdata1.md",
+        "sha256": "b8bd10ad80ec1c041a2c12591f0aa148a003a42591a30bb544fa55e27e51820a",
+        "timestamp": "Fri Mar 29 13:53:21 GMT 2024"
+      }
+    ]
+  }
+]
 ```
 
 ### Rename Json
 Prepend output file with alternative string:
 
 ```shell
-$ sigzag  --output-file tango
+$ sigzag  --tag-file tango
 ```
 
 Output:
@@ -145,6 +195,8 @@ tango-merkletree-2024328-8853-2a04c17860212ddce9ea2c1f921da29d834f762e700b609f28
 | --root             | Root directory to descend. Defaults to working directory |
 | --level            | Directory nesting depth (default==3)                     |
 | --diff             | Compare two manifests and return the difference if any   |
-| --output-file      | Prepends file with string to filename                    |
+| --asset            | Asset to compile history for from manifests              |
+| --history          | Manifests to search for an assets history                |
+| --tag-file         | Prepends file with string to filename                    |
 | --compare-manifest | Compare manifest                                         |
 | --compare-merkle   | Compare merkle tree                                      |

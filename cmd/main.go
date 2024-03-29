@@ -16,7 +16,7 @@ func main() {
 	diffManifest := flag.Bool("diff", false, "Compare two manifests and return the difference if any")
 	asset := flag.String("asset", crawler.ASSET.Strings(), "Manifests")
 	history := flag.Bool("history", false, "Returns the history of an asset")
-	outputFile := flag.String("output-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
+	tagFile := flag.String("tag-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
 
@@ -34,13 +34,14 @@ func main() {
 
 	levelStart := length - 1
 	config := crawler.Config{
-		Root:       levelStart,
-		Depth:      *level + 1,
-		OutputFile: *outputFile,
+		Root:    levelStart,
+		Depth:   *level + 1,
+		TagFile: *tagFile,
 	}
 
 	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() {
-		err = generateManifest(path, config)
+		var m crawler.Manager
+		_, _, err = m.GenerateManifest(path, config)
 		if err != nil {
 			fmt.Printf("error generating manifests, %s", err)
 		}
@@ -48,7 +49,7 @@ func main() {
 
 	if *diffManifest {
 		var m crawler.Manager
-		m.Diff(flag.Args()[0], flag.Args()[1])
+		_ = m.Diff(flag.Args()[0], flag.Args()[1], false)
 	}
 
 	if *history && *asset != crawler.ASSET.Strings() {
@@ -63,21 +64,4 @@ func main() {
 		var m crawler.Manager
 		m.Compare(flag.Args()[0], flag.Args()[1], crawler.MERKLETREE)
 	}
-}
-
-func generateManifest(path string, config crawler.Config) error {
-	crawl := crawler.NewCrawler(path, &config)
-	err := crawl.Crawl()
-	if err != nil {
-		return fmt.Errorf("unable to crawl directory, %s", err)
-	}
-	err = crawl.Write(crawler.MANIFEST)
-	if err != nil {
-		return fmt.Errorf("unable to write manifest. %s", err)
-	}
-	err = crawl.Write(crawler.MERKLETREE)
-	if err != nil {
-		return fmt.Errorf("unable to write Merkle tree. %s", err)
-	}
-	return nil
 }
