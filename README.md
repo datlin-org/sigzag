@@ -1,6 +1,6 @@
-# SigZag
+# Sigzag
 
-Sigzag is a small utility for signing digital assets and generating manifests.
+Sigzag (*work in progress*) is a small utility for signing digital assets and generating manifests.
 
 - Cryptographically sign content
 - Generate a manifest

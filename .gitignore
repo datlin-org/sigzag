@@ -26,3 +26,5 @@ go.work
 /build
 
 *.json
+testdb.sql
+sigzag.db

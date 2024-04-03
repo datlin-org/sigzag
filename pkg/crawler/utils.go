@@ -13,7 +13,7 @@ import (
 
 type Util interface {
 	Compare(file1 string, file2 string, value labels)
-	Diff(m1 string, m2 string)
+	Diff(m1 string, m2 string, timeless bool) []Sig
 	Write(label labels)
 	History(asset string, args []string)
 }

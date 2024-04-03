@@ -42,6 +42,7 @@ type Config struct {
 	Root    int
 	Depth   int
 	TagFile string
+	OutDir  string
 }
 
 type DirectoryCrawler struct {
@@ -129,61 +130,54 @@ func (d *DirectoryCrawler) Write(fileType labels) (string, error) {
 		return "", fmt.Errorf("randomise bytes failed, %s", err)
 	}
 	s.Write(rb)
+	timeStamp := time.Now()
+	timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
+		timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 	var fileName string
 	switch fileType {
 	case MANIFEST:
-		timeStamp := time.Now()
-		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
-			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.TagFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
-
 		if d.Conf.TagFile != SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.TagFile, MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
-		d.writeManifest(fileName)
+		if d.Conf.OutDir != "" {
+			fileName = fmt.Sprintf("%s%s", d.Conf.OutDir, fileName)
+		}
+		file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
+		sigJson, _ := json.Marshal(d.Signatures)
+		_, err = file.Write(sigJson)
+		if err != nil {
+			return "", nil
+		}
 		return fileName, nil
 	case MERKLETREE:
-		timeStamp := time.Now()
-		timeStampFmt := fmt.Sprintf("%d%d%d-%d%d%d", timeStamp.Year(), timeStamp.Month(), timeStamp.Day(),
-			timeStamp.Hour(), timeStamp.Minute(), timeStamp.Second())
 		if d.Conf.TagFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%x.json", MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
-
 		if d.Conf.TagFile != SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.TagFile, MERKLETREE.Strings(), timeStampFmt, s.Sum(nil))
 		}
-		d.writeMerkleTree(fileName)
+		home, err := d.buildMerkleTree()
+		if err != nil {
+			log.Fatalf("building merkle tree failed")
+		}
+		if d.Conf.OutDir != "" {
+			fileName = fmt.Sprintf("%s%s", d.Conf.OutDir, fileName)
+		}
+		file, _ := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
+		sigJson, _ := json.Marshal(home)
+		_, err = file.Write(sigJson)
+		if err != nil {
+			log.Print("File failed to write", err)
+		}
 		return fileName, nil
 
 	default:
 		panic("unhandled default case")
 	}
 	return "", nil
-}
-
-func (d *DirectoryCrawler) writeManifest(fileName string) {
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
-	sigJson, _ := json.Marshal(d.Signatures)
-	_, err = file.Write(sigJson)
-	if err != nil {
-		return
-	}
-}
-
-func (d *DirectoryCrawler) writeMerkleTree(fileName string) {
-	home, err := d.buildMerkleTree()
-	if err != nil {
-		log.Fatalf("building merkle tree failed")
-	}
-	file, _ := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
-	sigJson, _ := json.Marshal(home)
-	_, err = file.Write(sigJson)
-	if err != nil {
-		log.Print("File failed to write", err)
-	}
 }
 
 func (d *DirectoryCrawler) buildMerkleTree() (*hometree.Node, error) {

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/KevinFasusi/sigzag/pkg/crawler"
+	//t "github.com/KevinFasusi/sigzag/pkg/terminal"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,6 +20,8 @@ func main() {
 	tagFile := flag.String("tag-file", crawler.SIGZAG.Strings(), "Prepends the output file with string")
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
+	out := flag.String("output-file", "", "Directory for output")
+	//terminal := flag.Bool("terminal", false, "Launch terminal")
 
 	flag.Parse()
 	path, err := filepath.Abs(*root)
@@ -37,6 +40,7 @@ func main() {
 		Root:    levelStart,
 		Depth:   *level + 1,
 		TagFile: *tagFile,
+		OutDir:  *out,
 	}
 
 	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() {
