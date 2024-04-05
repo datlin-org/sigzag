@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/KevinFasusi/hometree"
@@ -149,7 +150,7 @@ func (m *Manager) History(asset string, args []string) {
 }
 
 func (m *Manager) GenerateManifest(path string, config Config) (string, string, error) {
-	crawl := NewCrawler(path, &config)
+	crawl := NewDirectoryCrawler(path, &config)
 	err := crawl.Crawl()
 	if err != nil {
 		return "", "", fmt.Errorf("unable to crawl directory, %s", err)
@@ -163,4 +164,35 @@ func (m *Manager) GenerateManifest(path string, config Config) (string, string, 
 		return "", "", fmt.Errorf("unable to write Merkle tree. %s", err)
 	}
 	return manifestFile, merkleFile, nil
+}
+
+func (m *Manager) Download(config Config) {
+	w := NewWebCrawler(&config)
+	urlParts := strings.Split(config.Url, "/")
+	f := urlParts[len(urlParts)-1]
+	file, err := os.Create(f)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
+	err = w.Download(file, 3)
+	if err != nil {
+		return
+	}
+	fileStat, err := file.Stat()
+	var d DirectoryCrawler
+	fmt.Printf("%v bytes downloaded\n", fileStat.Size())
+	f2, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE, 0666)
+	_ = f2.Close()
+	fmt.Printf("sha256: %x", d.FileSignature(f2.Name()))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

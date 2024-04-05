@@ -46,7 +46,7 @@ The manifest file name is composed as `manifest-date-time-SHA256.json`
 Json contents:
 
 ```
-[
+    [
   {
     "asset": "sigzag/.gitignore",
     "sha256": "3f65909ea8ecb4d4ad55863aec833a10b7d6592a405bf1f2fa2078b8017be353",
@@ -188,10 +188,25 @@ tango-manifest-2024328-8853-402cd35c615b384c807cb1adb71923ff1ac0f8da06aadd0eb20a
 tango-merkletree-2024328-8853-2a04c17860212ddce9ea2c1f921da29d834f762e700b609f281478a72ff63192.json
 ```
 
+### Download
+
+```shell
+$ sigzag --url https://somefile/url
+
+```
+
+output:
+
+```
+27551470 bytes downloaded
+sha256: 374ea82b289ec738e968267cac59c7d5ff180f9492250254784b2044e90df5a9
+```
+
 ## Flags
 
 | Flag               | Description                                              |
 |:-------------------|:---------------------------------------------------------|
+| --download         | Download asset and show sha256 checksum                  |
 | --root             | Root directory to descend. Defaults to working directory |
 | --level            | Directory nesting depth (default==3)                     |
 | --diff             | Compare two manifests and return the difference if any   |

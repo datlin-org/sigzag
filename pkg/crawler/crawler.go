@@ -25,6 +25,9 @@ const (
 	ASSET
 	DIFF
 	HISTORY
+	DIRECTORY
+	WEB
+	URL
 )
 
 func (l labels) Strings() string {
@@ -35,7 +38,14 @@ func (l labels) Strings() string {
 		"asset",
 		"diff",
 		"history",
+		"directory",
+		"web",
+		"url",
 	}[l]
+}
+
+type Crawler interface {
+	Crawl() error
 }
 
 type Config struct {
@@ -43,6 +53,7 @@ type Config struct {
 	Depth   int
 	TagFile string
 	OutDir  string
+	Url     string
 }
 
 type DirectoryCrawler struct {
@@ -189,8 +200,14 @@ func (d *DirectoryCrawler) buildMerkleTree() (*hometree.Node, error) {
 	return home, nil
 }
 
-func NewCrawler(root string, conf *Config) *DirectoryCrawler {
+func NewDirectoryCrawler(root string, conf *Config) *DirectoryCrawler {
 	return &DirectoryCrawler{
 		Dir:  root,
 		Conf: *conf}
+}
+
+func NewWebCrawler(conf *Config) *WebCrawler {
+	return &WebCrawler{
+		Conf: *conf,
+	}
 }

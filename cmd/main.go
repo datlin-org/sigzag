@@ -21,6 +21,7 @@ func main() {
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
 	out := flag.String("output-file", "", "Directory for output")
+	url := flag.String("url", crawler.URL.Strings(), "Url for file")
 	//terminal := flag.Bool("terminal", false, "Launch terminal")
 
 	flag.Parse()
@@ -41,14 +42,21 @@ func main() {
 		Depth:   *level + 1,
 		TagFile: *tagFile,
 		OutDir:  *out,
+		Url:     *url,
 	}
 
-	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() {
+	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() &&
+		*url == crawler.URL.Strings() {
 		var m crawler.Manager
 		_, _, err = m.GenerateManifest(path, config)
 		if err != nil {
 			fmt.Printf("error generating manifests, %s", err)
 		}
+	}
+
+	if *url != crawler.URL.Strings() {
+		var m crawler.Manager
+		m.Download(config)
 	}
 
 	if *diffManifest {
