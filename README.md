@@ -206,7 +206,7 @@ sha256: 374ea82b289ec738e968267cac59c7d5ff180f9492250254784b2044e90df5a9
 
 | Flag               | Description                                              |
 |:-------------------|:---------------------------------------------------------|
-| --download         | Download asset and show sha256 checksum                  |
+| --url              | Download asset and show sha256 checksum                  |
 | --root             | Root directory to descend. Defaults to working directory |
 | --level            | Directory nesting depth (default==3)                     |
 | --diff             | Compare two manifests and return the difference if any   |
