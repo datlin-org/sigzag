@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/KevinFasusi/sigzag/pkg/crawler"
-	//t "github.com/KevinFasusi/sigzag/pkg/terminal"
+
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +21,8 @@ func main() {
 	compareManifest := flag.Bool("compare-manifest", false, "Compare manifests")
 	compareMerkle := flag.Bool("compare-merkle", false, "Compare merkle")
 	out := flag.String("output-file", "", "Directory for output")
-	url := flag.String("url", crawler.URL.Strings(), "Url for file")
+	url := flag.String("url", crawler.URL.Strings(), "Download asset and show sha256 checksum")
+	urls := flag.String("urls", crawler.URLS.Strings(), "Download assets from a list of urls in a file and generate a manifest containing checksums")
 	//terminal := flag.Bool("terminal", false, "Launch terminal")
 
 	flag.Parse()
@@ -35,7 +36,6 @@ func main() {
 		log.Fatalf("path error: %s", err)
 	}
 	length := len(strings.Split(path, string(os.PathSeparator)))
-
 	levelStart := length - 1
 	config := crawler.Config{
 		Root:    levelStart,
@@ -43,10 +43,11 @@ func main() {
 		TagFile: *tagFile,
 		OutDir:  *out,
 		Url:     *url,
+		Urls:    *urls,
 	}
 
 	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() &&
-		*url == crawler.URL.Strings() {
+		*url == crawler.URL.Strings() && *urls == crawler.URLS.Strings() {
 		var m crawler.Manager
 		_, _, err = m.GenerateManifest(path, config)
 		if err != nil {
@@ -56,7 +57,12 @@ func main() {
 
 	if *url != crawler.URL.Strings() {
 		var m crawler.Manager
-		m.Download(config)
+		m.Download(config, crawler.URL)
+	}
+
+	if *urls != crawler.URLS.Strings() {
+		var m crawler.Manager
+		m.Download(config, crawler.URLS)
 	}
 
 	if *diffManifest {

@@ -27,4 +27,6 @@ go.work
 
 *.json
 testdb.sql
+testdata/urls.json
+testdata/urls.yaml
 sigzag.db

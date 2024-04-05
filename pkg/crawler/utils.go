@@ -166,7 +166,19 @@ func (m *Manager) GenerateManifest(path string, config Config) (string, string, 
 	return manifestFile, merkleFile, nil
 }
 
-func (m *Manager) Download(config Config) {
+func (m *Manager) Download(config Config, label labels) {
+
+	switch label {
+	case URL:
+		downloadUrl(config)
+	case URLS:
+		downloadUrls(config)
+	default:
+		panic("unhandled default case")
+	}
+}
+
+func downloadUrl(config Config) {
 	w := NewWebCrawler(&config)
 	urlParts := strings.Split(config.Url, "/")
 	f := urlParts[len(urlParts)-1]
@@ -188,11 +200,55 @@ func (m *Manager) Download(config Config) {
 	fileStat, err := file.Stat()
 	var d DirectoryCrawler
 	fmt.Printf("%v bytes downloaded\n", fileStat.Size())
-	f2, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE, 0666)
+	f2, err := os.OpenFile(f, os.O_RDONLY, 0644)
 	_ = f2.Close()
 	fmt.Printf("sha256: %x", d.FileSignature(f2.Name()))
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+}
+
+func downloadUrls(config Config) {
+	f1, ok := os.ReadFile(config.Urls)
+	w := NewWebCrawler(&config)
+	if ok != nil {
+		return
+	}
+	var u []Urls
+	err := json.Unmarshal(f1, &u)
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	for _, i := range u {
+		s := i
+		w.Conf.Url = s.Url
+		urlParts := strings.Split(s.Url, "/")
+		f := urlParts[len(urlParts)-1]
+		file, err := os.Create(f)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer func(file *os.File) {
+			err = file.Close()
+			if err != nil {
+				return
+			}
+		}(file)
+		err = w.Download(file, 3)
+		if err != nil {
+			return
+		}
+		fileStat, err := file.Stat()
+		var d DirectoryCrawler
+		fmt.Printf("%v bytes downloaded\n", fileStat.Size())
+		f2, err := os.OpenFile(f, os.O_RDONLY, 0644)
+		_ = f2.Close()
+		fmt.Printf("sha256: %x", d.FileSignature(f2.Name()))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }

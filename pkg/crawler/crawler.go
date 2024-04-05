@@ -28,6 +28,7 @@ const (
 	DIRECTORY
 	WEB
 	URL
+	URLS
 )
 
 func (l labels) Strings() string {
@@ -41,11 +42,18 @@ func (l labels) Strings() string {
 		"directory",
 		"web",
 		"url",
+		"urls",
 	}[l]
 }
 
 type Crawler interface {
 	Crawl() error
+}
+
+type Urls struct {
+	Url    string `json:"url"`
+	Sha256 string `json:"sha256,omitempty"`
+	Size   string `json:"size,omitempty"`
 }
 
 type Config struct {
@@ -54,6 +62,7 @@ type Config struct {
 	TagFile string
 	OutDir  string
 	Url     string
+	Urls    string
 }
 
 type DirectoryCrawler struct {
