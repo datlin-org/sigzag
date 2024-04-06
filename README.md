@@ -1,3 +1,5 @@
+<p align="center"><img width="40%" src="https://raw.githubusercontent.com/KevinFasusi/sigzag/main/.github/images/sigzag-logo.png" /></p>
+
 # Sigzag
 
 Sigzag (*work in progress*) is a small utility for signing digital assets and generating manifests. The utility is useful
