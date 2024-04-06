@@ -1,12 +1,15 @@
 # Sigzag
 
-Sigzag (*work in progress*) is a small utility for signing digital assets and generating manifests.
+Sigzag (*work in progress*) is a small utility for signing digital assets and generating manifests. The utility is useful
+for:
 
 - Cryptographically sign content
-- Generate a manifest
-- Compare manifests
-- Diff manifests
-- Manifests in Json and gRPC format
+- Checking the integrity of digital assets
+- Generating a manifest
+- Comparing manifests
+- Diffing manifests
+
+The manifests are in JSON format (gRPC TBC).
 
 ## Install
 
@@ -190,6 +193,8 @@ tango-merkletree-2024328-8853-2a04c17860212ddce9ea2c1f921da29d834f762e700b609f28
 
 ### Download
 
+Download a single file:
+
 ```shell
 $ sigzag --url https://somefile/url
 
@@ -200,6 +205,43 @@ output:
 ```
 27551470 bytes downloaded
 sha256: 374ea82b289ec738e968267cac59c7d5ff180f9492250254784b2044e90df5a9
+```
+Download multiple items using a json file:
+
+```shell
+$ sigzag --urls path/to/file.json
+```
+
+Json example:
+```
+[
+  { "url": "https://go.dev/dl/go1.22.2.src.tar.gz",
+    "sha256": "374ea82b289ec738e968267cac59c7d5ff180f9492250254784b2044e90df5a9",
+    "size": "26MB"},
+  {"url": "https://go.dev/dl/go1.22.2.darwin-amd64.tar.gz",
+    "sha256": "33e7f63077b1c5bce4f1ecadd4d990cf229667c40bfb00686990c950911b7ab7",
+    "size": "67MB"},
+  {"url": "https://go.dev/dl/go1.22.2.linux-amd64.tar.gz",
+    "sha256": "5901c52b7a78002aeff14a21f93e0f064f74ce1360fce51c6ee68cd471216a17",
+    "size": "67MB"}
+]
+```
+
+output:
+
+```
+27551470 bytes downloaded
+27 MB downloaded
+sha256: 374ea82b289ec738e968267cac59c7d5ff180f9492250254784b2044e90df5a9
+Match: true
+70323302 bytes downloaded
+70 MB downloaded
+sha256: 33e7f63077b1c5bce4f1ecadd4d990cf229667c40bfb00686990c950911b7ab7
+Match: true
+68958123 bytes downloaded
+68 MB downloaded
+sha256: 5901c52b7a78002aeff14a21f93e0f064f74ce1360fce51c6ee68cd471216a17
+Match: true
 ```
 
 ## Flags

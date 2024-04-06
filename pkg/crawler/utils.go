@@ -199,19 +199,16 @@ func downloadUrl(config Config) {
 	}
 	fileStat, err := file.Stat()
 	var d DirectoryCrawler
-	fmt.Printf("%v bytes downloaded\n", fileStat.Size())
+	fmt.Printf("%v bytes downloaded\n%v MB downloaded\n", fileStat.Size(), fileStat.Size()/1000000)
 	f2, err := os.OpenFile(f, os.O_RDONLY, 0644)
 	_ = f2.Close()
-	fmt.Printf("sha256: %x", d.FileSignature(f2.Name()))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	fmt.Printf("sha256: %x\n", d.FileSignature(f2.Name()))
 }
 
 func downloadUrls(config Config) {
 	f1, ok := os.ReadFile(config.Urls)
 	w := NewWebCrawler(&config)
+	var res []*UrlResult
 	if ok != nil {
 		return
 	}
@@ -240,15 +237,48 @@ func downloadUrls(config Config) {
 		if err != nil {
 			return
 		}
-		fileStat, err := file.Stat()
-		var d DirectoryCrawler
-		fmt.Printf("%v bytes downloaded\n", fileStat.Size())
-		f2, err := os.OpenFile(f, os.O_RDONLY, 0644)
-		_ = f2.Close()
-		fmt.Printf("sha256: %x", d.FileSignature(f2.Name()))
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		res = append(res, compareDownloadSHA(s, file, f))
 	}
+	writeDownloadManifest(res)
+}
+
+func compareDownloadSHA(s Urls, file *os.File, name string) *UrlResult {
+	fileStat, _ := file.Stat()
+	var match bool
+	var d DirectoryCrawler
+	size := fileStat.Size()
+	fmt.Printf("%v bytes downloaded\n%vMB downloaded\n", size, size/1000000)
+	f2, _ := os.OpenFile(name, os.O_RDONLY, 0644)
+	_ = f2.Close()
+	sha := fmt.Sprintf("%x", d.FileSignature(f2.Name()))
+	fmt.Printf("sha256: %s\n", sha)
+	if sha == s.Sha256 {
+		match = true
+		fmt.Printf("Match: true\n")
+	} else {
+		match = false
+		fmt.Printf("Match: false\n")
+	}
+	return &UrlResult{
+		File:   f2.Name(),
+		Sha256: sha,
+		Size:   size,
+		Match:  match,
+	}
+
+}
+
+type UrlResult struct {
+	File   string `json:"file"`
+	Sha256 string `json:"sha256,omitempty"`
+	Size   int64  `json:"size,omitempty"`
+	Match  bool   `json:"match,omitempty"`
+}
+
+func writeDownloadManifest(res []*UrlResult) {
+	marshal, err := json.Marshal(res)
+	if err != nil {
+		return
+	}
+	toFile(DOWNLOAD, marshal)
 }

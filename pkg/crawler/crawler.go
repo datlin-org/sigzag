@@ -29,6 +29,7 @@ const (
 	WEB
 	URL
 	URLS
+	DOWNLOAD
 )
 
 func (l labels) Strings() string {
@@ -43,8 +44,11 @@ func (l labels) Strings() string {
 		"web",
 		"url",
 		"urls",
+		"download",
 	}[l]
 }
+
+var filePrefix = SIGZAG.Strings() + string(os.PathSeparator) + MANIFEST.Strings() + string(os.PathSeparator)
 
 type Crawler interface {
 	Crawl() error
@@ -162,7 +166,7 @@ func (d *DirectoryCrawler) Write(fileType labels) (string, error) {
 		if d.Conf.TagFile != SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s-%s-%s-%x.json", d.Conf.TagFile, MANIFEST.Strings(), timeStampFmt, s.Sum(nil))
 		}
-		if d.Conf.OutDir != "" {
+		if d.Conf.OutDir != "" && d.Conf.TagFile == SIGZAG.Strings() {
 			fileName = fmt.Sprintf("%s%s", d.Conf.OutDir, fileName)
 		}
 		file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
