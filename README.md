@@ -14,7 +14,8 @@ is useful for:
 - Diffing manifests
 
 The manifests are in JSON format (gRPC TBC). SigZag is not a replacement for SBOM generators used for product release. 
-SigZag assists with local observability, offering tools to spot anomalies and potential security vulnerabilities.
+SigZag can assists with local observability, offering tools to spot integrity anomalies and potential security 
+vulnerabilities. However, the utility simply generates manifests for signed digital assets.
 
 ## Install
 
