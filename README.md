@@ -2,9 +2,9 @@
     <img src="https://github.com/KevinFasusi/sigzag/blob/376da187ac04145ff4c3e9828d5ba99d31806c72/.github/images/sigzag-logo.png" width="201" alt="sigzag logo">
 </p>
 
-# Sigzag
+# SigZag
 
-Sigzag (*work in progress*) is a small utility for signing digital assets and generating manifests locally. The utility 
+SigZag (*work in progress*) is a small utility for signing digital assets and generating manifests locally. The utility 
 is useful for:
 
 - Checking and monitoring the integrity of local digital assets 
@@ -14,8 +14,9 @@ is useful for:
 - Diffing manifests
 
 The manifests are in JSON format (gRPC TBC). SigZag is not a replacement for SBOM generators used for product release. 
-SigZag can assists with local observability, offering tools to spot integrity anomalies and potential security 
-vulnerabilities. However, the utility simply generates manifests for signed digital assets.
+SigZag can assists with local observability and forensics, offering tools to spot integrity anomalies, potential security 
+vulnerabilities and inconsistencies in provenance. However, the utility simply generates manifests for signed digital 
+assets.
 
 ## Install
 
