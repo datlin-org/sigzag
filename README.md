@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/KevinFasusi/sigzag/blob/376da187ac04145ff4c3e9828d5ba99d31806c72/.github/images/sigzag-logo.png" width="271" alt="sigzag logo">
+    <img src="https://github.com/KevinFasusi/sigzag/blob/376da187ac04145ff4c3e9828d5ba99d31806c72/.github/images/sigzag-logo.png" width="201" alt="sigzag logo">
 </p>
 
 # Sigzag

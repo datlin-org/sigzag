@@ -22,6 +22,8 @@ builds:
       - windows
       - darwin
 
+sboms:
+  - artifacts: archive
 
 archives:
   - format: tar.gz
