@@ -23,6 +23,7 @@ func main() {
 	out := flag.String("output-file", "", "Directory for output")
 	url := flag.String("url", crawler.URL.Strings(), "Download asset and show sha256 checksum")
 	urls := flag.String("urls", crawler.URLS.Strings(), "Download assets from a list of urls in a file and generate a manifest containing checksums")
+	//scan := flag.String("scan", crawler.ASSET.Strings(), "Scan file")
 	//terminal := flag.Bool("terminal", false, "Launch terminal")
 
 	flag.Parse()

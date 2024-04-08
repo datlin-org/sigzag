@@ -2,21 +2,22 @@
     <img src="https://github.com/KevinFasusi/sigzag/blob/376da187ac04145ff4c3e9828d5ba99d31806c72/.github/images/sigzag-logo.png" width="201" alt="sigzag logo">
 </p>
 
-# SigZag
+# SigZag ![Static Badge](https://img.shields.io/badge/Under%20Development-494980)
 
-SigZag (*work in progress*) is a small utility for signing digital assets and generating manifests locally. The utility 
-is useful for:
+SigZag is a small utility for signing digital assets and generating local manifests 
+for **data centric workloads**. 
 
-- Checking and monitoring the integrity of local digital assets 
-- Cryptographically sign content
-- Generating a manifest
-- Comparing manifests
-- Diffing manifests
+Managing the provenance, lineage and integrity of data ingress, transformation and egress can be challenging.
+The difficulty can be exacerbated when using large open data sets. Accidental and in some instance malicious changes to
+data can occur when data wrangling and munging.
 
-The manifests are in JSON format (gRPC TBC). SigZag is not a replacement for SBOM generators used for product release. 
-SigZag can assists with local observability and forensics, offering tools to spot integrity anomalies, potential security 
-vulnerabilities and inconsistencies in provenance. However, the utility simply generates manifests for signed digital 
-assets.
+The SigZag utility is useful for:
+
+- Cryptographically signing content, both the file and data (including database).
+- Generating manifests for signed data in JSON format (gRPC TBC).
+- Tracking the history of a data assets. 
+- Checking, comparing and monitoring the integrity of data in common file formats (csv, xlsx, xlsm, xml, json, jupyter 
+notebooks, parquet, txt, zip, etc.).
 
 ## Install
 

@@ -20,6 +20,7 @@
 # Go workspace file
 go.work
 
+.DS_Store
 
 /.idea
 
@@ -31,3 +32,7 @@ testdata/urls.json
 testdata/urls.yaml
 sigzag.db
 dist/
+
+
+*.xlsx
+*.xlsm
