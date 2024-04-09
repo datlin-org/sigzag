@@ -25,6 +25,7 @@ type Manager struct {
 	Merkle hometree.Node
 }
 
+// Compare check the equality of two manifests
 func (m *Manager) Compare(file1 string, file2 string, value labels) {
 	switch value {
 	case MANIFEST:
@@ -42,6 +43,7 @@ func (m *Manager) Compare(file1 string, file2 string, value labels) {
 	}
 }
 
+// Diff check the difference between two manifests.
 func (m *Manager) Diff(m1 string, m2 string, timeless bool) []Sig {
 	var remove []Sig
 	s1 := Read(m1, MANIFEST, timeless).Sig
@@ -67,17 +69,18 @@ func (m *Manager) Diff(m1 string, m2 string, timeless bool) []Sig {
 	return m.Sig
 }
 
+// Write the result of interrogating a manifest to disk
 func (m *Manager) Write(label labels) {
+	var sigJson []byte
 	switch label {
 	case DIFF:
-		sigJson, _ := json.Marshal(m.Sig)
-		toFile(label, sigJson)
+		sigJson, _ = json.Marshal(m.Sig)
 	case HISTORY:
-		sigJson, _ := json.Marshal(m.Hist)
-		toFile(label, sigJson)
+		sigJson, _ = json.Marshal(m.Hist)
 	default:
 		log.Fatalf("unknown signature type, expected %s or %s, got==%s", DIFF.Strings(), HISTORY.Strings(), label.Strings())
 	}
+	toFile(label, sigJson)
 }
 
 func toFile(label labels, toJson []byte) {
@@ -91,6 +94,7 @@ func toFile(label labels, toJson []byte) {
 	}
 }
 
+// Read manifest
 func Read(file string, label labels, timeless bool) Manager {
 	f, err := os.ReadFile(file)
 	if err != nil {
@@ -130,6 +134,7 @@ type History struct {
 	History []Sig
 }
 
+// History tracks the history of an asset across
 func (m *Manager) History(asset string, args []string) {
 	var rec []Sig
 	var history History
@@ -149,6 +154,7 @@ func (m *Manager) History(asset string, args []string) {
 	m.Write(HISTORY)
 }
 
+// GenerateManifest walks a directory and writes metadata and cryptographic signature to a file
 func (m *Manager) GenerateManifest(path string, config Config) (string, string, error) {
 	crawl := NewDirectoryCrawler(path, &config)
 	err := crawl.Crawl()
@@ -166,6 +172,7 @@ func (m *Manager) GenerateManifest(path string, config Config) (string, string, 
 	return manifestFile, merkleFile, nil
 }
 
+// Download retrieve file from url and generate SHA256
 func (m *Manager) Download(config Config, label labels) {
 
 	switch label {
@@ -178,6 +185,7 @@ func (m *Manager) Download(config Config, label labels) {
 	}
 }
 
+// downloadUrl download from a single url
 func downloadUrl(config Config) {
 	w := NewWebCrawler(&config)
 	urlParts := strings.Split(config.Url, "/")
@@ -205,6 +213,7 @@ func downloadUrl(config Config) {
 	fmt.Printf("sha256: %x\n", d.FileSignature(f2.Name()))
 }
 
+// downloadUrls download urls from a json file
 func downloadUrls(config Config) {
 	f1, ok := os.ReadFile(config.Urls)
 	w := NewWebCrawler(&config)
@@ -275,6 +284,7 @@ type UrlResult struct {
 	Match  bool   `json:"match,omitempty"`
 }
 
+// writeDownloadManifest write the metadata from downloading to file
 func writeDownloadManifest(res []*UrlResult) {
 	marshal, err := json.Marshal(res)
 	if err != nil {

@@ -2,7 +2,7 @@
     <img src="https://github.com/KevinFasusi/sigzag/blob/376da187ac04145ff4c3e9828d5ba99d31806c72/.github/images/sigzag-logo.png" width="201" alt="sigzag logo">
 </p>
 
-# SigZag ![Static Badge](https://img.shields.io/badge/Under%20Development-494980)
+![Static Badge](https://img.shields.io/badge/Under%20Development-494980) [![GitHub license][license-badge]](LICENSE)
 
 SigZag is a small utility for signing digital assets and generating local manifests 
 for **data centric workloads**. 
@@ -254,15 +254,18 @@ Match: true
 
 ## Flags
 
-| Flag               | Description                                                                                |
-|:-------------------|:-------------------------------------------------------------------------------------------|
-| --url              | Download asset and show sha256 checksum                                                    |
-| --urls             | Download assets from a list of urls in a file and generate a manifest containing checksums |
-| --root             | Root directory to descend. Defaults to working directory                                   |
-| --level            | Directory nesting depth (default==3)                                                       |
-| --diff             | Compare two manifests and return the difference if any                                     |
-| --asset            | Asset to compile history for from manifests                                                |
-| --history          | Manifests to search for an assets history                                                  |
-| --tag-file         | Prepends file with string to filename                                                      |
-| --compare-manifest | Compare manifest                                                                           |
-| --compare-merkle   | Compare merkle tree                                                                        |
+| Flag                   | Description                                                                                |
+|:-----------------------|:-------------------------------------------------------------------------------------------|
+| --url                  | Download asset and show sha256 checksum                                                    |
+| --urls                 | Download assets from a list of urls in a file and generate a manifest containing checksums |
+| --root                 | Root directory to descend. Defaults to working directory                                   |
+| --level                | Directory nesting depth (default==3)                                                       |
+| --diff                 | Compare two manifests and return the difference if any                                     |
+| --asset                | Asset to compile history for from manifests                                                |
+| --history              | Manifests to search for an assets history                                                  |
+| --tag-file             | Prepends file with string to filename                                                      |
+| --compare-manifest     | Compare manifest                                                                           |
+| --compare-merkle       | Compare merkle tree                                                                        |
+
+<!-- refs -->
+[license-badge]: https://img.shields.io/github/license/KevinFasusi/sigzag

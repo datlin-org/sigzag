@@ -11,31 +11,48 @@ import (
 )
 
 type ScanType int
+type EnvironmentVar int
 
 const (
 	EXCEL ScanType = iota
 	DATABASE
 )
 
+func (st ScanType) Strings() string {
+	return [...]string{
+		"excel",
+		"database",
+	}[st]
+}
+
+const (
+	SigZagDir EnvironmentVar = iota
+)
+
+func (e EnvironmentVar) Strings() string {
+	return [...]string{
+		"SIGZAG_DIR",
+	}[e]
+}
+
 type Scanner struct {
 }
 
+// Scan data sources and generates metadata
 func (s *Scanner) Scan(path string, scanType ScanType) {
 
 	switch scanType {
-
 	case EXCEL:
 		scanExcel(path)
 	case DATABASE:
-
 	default:
 		panic("unhandled default case")
-
 	}
 }
 
+// scanExcel scans excel file and unpacks xml for etl pipeline
 func scanExcel(path string) {
-	sigzagDir := os.Getenv("SIGZAG_DIR")
+	sigzagDir := os.Getenv(SigZagDir.Strings())
 	if sigzagDir == "" {
 		hd, _ := os.UserHomeDir()
 		sigzagDir = hd + string(os.PathSeparator) + ".sigzag"
@@ -92,6 +109,7 @@ func scanExcel(path string) {
 			return
 		}
 	}
+
 	err := archive.Close()
 	if err != nil {
 		return

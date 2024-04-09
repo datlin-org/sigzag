@@ -21,6 +21,7 @@ func (w WebCrawler) Crawl() error {
 	panic("implement me")
 }
 
+// Download manages direct call to url persisting the download over successive tries until timeout
 func (w WebCrawler) Download(file *os.File, retries int) error {
 	req, err := http.NewRequest("", w.Conf.Url, nil)
 	if err != nil {
