@@ -177,7 +177,7 @@ func (m *Manager) Download(config Config, label labels) {
 
 	switch label {
 	case URL:
-		downloadUrl(config)
+		DownloadUrl(config)
 	case URLS:
 		downloadUrls(config)
 	default:
@@ -185,8 +185,8 @@ func (m *Manager) Download(config Config, label labels) {
 	}
 }
 
-// downloadUrl download from a single url
-func downloadUrl(config Config) {
+// DownloadUrl download from a single url
+func DownloadUrl(config Config) {
 	w := NewWebCrawler(&config)
 	urlParts := strings.Split(config.Url, "/")
 	f := urlParts[len(urlParts)-1]
@@ -210,7 +210,16 @@ func downloadUrl(config Config) {
 	fmt.Printf("%v bytes downloaded\n%v MB downloaded\n", fileStat.Size(), fileStat.Size()/1000000)
 	f2, err := os.OpenFile(f, os.O_RDONLY, 0644)
 	_ = f2.Close()
-	fmt.Printf("sha256: %x\n", d.FileSignature(f2.Name()))
+	sha := fmt.Sprintf("%x", d.FileSignature(f2.Name()))
+	fmt.Printf("sha256: %x\n", sha)
+
+	res := &UrlResult{
+		File:      f2.Name(),
+		Sha256:    sha,
+		Timestamp: time.Now().Format(time.UnixDate),
+	}
+	resL := []*UrlResult{res}
+	WriteDownloadManifest(resL)
 }
 
 // downloadUrls download urls from a json file
@@ -246,12 +255,13 @@ func downloadUrls(config Config) {
 		if err != nil {
 			return
 		}
-		res = append(res, compareDownloadSHA(s, file, f))
+		res = append(res, CompareDownloadSHA(s, file, f))
 	}
-	writeDownloadManifest(res)
+	WriteDownloadManifest(res)
 }
 
-func compareDownloadSHA(s Urls, file *os.File, name string) *UrlResult {
+// CompareDownloadSHA compares the SHA256 digest
+func CompareDownloadSHA(s Urls, file *os.File, name string) *UrlResult {
 	fileStat, _ := file.Stat()
 	var match bool
 	var d DirectoryCrawler
@@ -278,14 +288,15 @@ func compareDownloadSHA(s Urls, file *os.File, name string) *UrlResult {
 }
 
 type UrlResult struct {
-	File   string `json:"file"`
-	Sha256 string `json:"sha256,omitempty"`
-	Size   int64  `json:"size,omitempty"`
-	Match  bool   `json:"match,omitempty"`
+	File      string `json:"file"`
+	Sha256    string `json:"sha256,omitempty"`
+	Size      int64  `json:"size,omitempty"`
+	Match     bool   `json:"match,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
-// writeDownloadManifest write the metadata from downloading to file
-func writeDownloadManifest(res []*UrlResult) {
+// WriteDownloadManifest write the metadata from downloading to file
+func WriteDownloadManifest(res []*UrlResult) {
 	marshal, err := json.Marshal(res)
 	if err != nil {
 		return

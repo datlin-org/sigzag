@@ -35,19 +35,25 @@ func (e EnvironmentVar) Strings() string {
 	}[e]
 }
 
-type Scanner struct {
+type Config struct {
+	Path     string
+	ScanType ScanType
 }
 
-// Scan data sources and generates metadata
-func (s *Scanner) Scan(path string, scanType ScanType) {
+type Scanner struct {
+	Conf Config
+}
 
-	switch scanType {
+// Crawl data sources and generates metadata
+func (s *Scanner) Crawl() error {
+	switch s.Conf.ScanType {
 	case EXCEL:
-		scanExcel(path)
+		scanExcel(s.Conf.Path)
 	case DATABASE:
 	default:
 		panic("unhandled default case")
 	}
+	return nil
 }
 
 // scanExcel scans excel file and unpacks xml for etl pipeline

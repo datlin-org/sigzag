@@ -23,16 +23,27 @@ go.work
 .DS_Store
 
 /.idea
-
 /build
 
-*.json
+# Test Data
 testdb.sql
 testdata/urls.json
 testdata/urls.yaml
+
+# Databases
 sigzag.db
+
+# Distribution
 dist/
 
-
+# Extensions
 *.xlsx
 *.xlsm
+*.xlsb
+*.zip
+*.arff
+*.ipynb
+*.bin
+*.pdf
+*.gz
+*.json

@@ -3,6 +3,13 @@ package scanner
 import "testing"
 
 func TestScan(t *testing.T) {
-	var s Scanner
-	s.Scan("../../testdata/TestBook.xlsm", EXCEL)
+	conf := &Config{
+		ScanType: EXCEL,
+		Path:     "../../testdata/TestBook.xlsm",
+	}
+	s := Scanner{Conf: *conf}
+	err := s.Crawl()
+	if err != nil {
+		return
+	}
 }

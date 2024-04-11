@@ -48,6 +48,38 @@ func (l labels) Strings() string {
 	}[l]
 }
 
+type Extension int
+
+const (
+	XLSX Extension = iota
+	XLSB
+	XLSM
+	CSV
+	ARFF
+	IPYNB
+	PARQUET
+	ZIP
+	BIN
+	PDF
+	GZ
+)
+
+func (e Extension) Strings() string {
+	return [...]string{
+		"xlsx",
+		"xlsb",
+		"xlsm",
+		"csv",
+		"arff",
+		"ipynb",
+		"parquet",
+		"zip",
+		"bin",
+		"pdf",
+		"gz",
+	}[e]
+}
+
 type Crawler interface {
 	Crawl() error
 }
