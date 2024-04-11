@@ -14,6 +14,16 @@ type Scraper struct {
 	Conf Config
 }
 
+func (s *Scraper) Scrape(config Config) {
+	sc := Scraper{
+		Conf: config,
+	}
+	err := sc.Crawl()
+	if err != nil {
+		return
+	}
+}
+
 func (s *Scraper) Crawl() error {
 	c := colly.NewCollector(
 	//colly.AllowedDomains("england.nhs.uk"),

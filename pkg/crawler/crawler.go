@@ -30,6 +30,7 @@ const (
 	URL
 	URLS
 	DOWNLOAD
+	DATASOURCE
 )
 
 func (l labels) Strings() string {
@@ -45,6 +46,7 @@ func (l labels) Strings() string {
 		"url",
 		"urls",
 		"download",
+		"datasource",
 	}[l]
 }
 

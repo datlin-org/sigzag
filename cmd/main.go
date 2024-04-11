@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/KevinFasusi/sigzag/pkg/crawler"
+	"github.com/KevinFasusi/sigzag/pkg/scraper"
 
 	"log"
 	"os"
@@ -23,6 +24,7 @@ func main() {
 	out := flag.String("output-file", "", "Directory for output")
 	url := flag.String("url", crawler.URL.Strings(), "Download asset and show sha256 checksum")
 	urls := flag.String("urls", crawler.URLS.Strings(), "Download assets from a list of urls in a file and generate a manifest containing checksums")
+	datasource := flag.String("datasource", crawler.DATASOURCE.Strings(), "Locate any data source type at location")
 	//scan := flag.String("scan", crawler.ASSET.Strings(), "Crawl file")
 	//terminal := flag.Bool("terminal", false, "Launch terminal")
 
@@ -48,12 +50,18 @@ func main() {
 	}
 
 	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() &&
-		*url == crawler.URL.Strings() && *urls == crawler.URLS.Strings() {
+		*url == crawler.URL.Strings() && *urls == crawler.URLS.Strings() && *datasource == crawler.DATASOURCE.Strings() {
 		var m crawler.Manager
 		_, _, err = m.GenerateManifest(path, config)
 		if err != nil {
 			fmt.Printf("error generating manifests, %s", err)
 		}
+	}
+
+	if *datasource != crawler.DATASOURCE.Strings() {
+		conf := scraper.Config{Url: *datasource}
+		sc := scraper.Scraper{Conf: conf}
+		sc.Scrape(conf)
 	}
 
 	if *url != crawler.URL.Strings() {

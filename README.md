@@ -254,18 +254,19 @@ Match: true
 
 ## Flags
 
-| Flag                   | Description                                                                                |
-|:-----------------------|:-------------------------------------------------------------------------------------------|
-| --url                  | Download asset and show sha256 checksum                                                    |
-| --urls                 | Download assets from a list of urls in a file and generate a manifest containing checksums |
-| --root                 | Root directory to descend. Defaults to working directory                                   |
-| --level                | Directory nesting depth (default==3)                                                       |
-| --diff                 | Compare two manifests and return the difference if any                                     |
-| --asset                | Asset to compile history for from manifests                                                |
-| --history              | Manifests to search for an assets history                                                  |
-| --tag-file             | Prepends file with string to filename                                                      |
-| --compare-manifest     | Compare manifest                                                                           |
-| --compare-merkle       | Compare merkle tree                                                                        |
+| Flag               | Description                                                                                |
+|:-------------------|:-------------------------------------------------------------------------------------------|
+| --url              | Download asset and show sha256 checksum                                                    |
+| --urls             | Download assets from a list of urls in a file and generate a manifest containing checksums |
+| --root             | Root directory to descend. Defaults to working directory                                   |
+| --level            | Directory nesting depth (default==3)                                                       |
+| --diff             | Compare two manifests and return the difference if any                                     |
+| --asset            | Asset to compile history for from manifests                                                |
+| --history          | Manifests to search for an assets history                                                  |
+| --tag-file         | Prepends file with string to filename                                                      |
+| --compare-manifest | Compare manifest                                                                           |
+| --compare-merkle   | Compare merkle tree                                                                        |
+| --datasource       | Search url for data sources with common extensions                                         |
 
 <!-- refs -->
 [license-badge]: https://img.shields.io/github/license/KevinFasusi/sigzag
