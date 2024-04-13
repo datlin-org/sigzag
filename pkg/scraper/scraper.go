@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/KevinFasusi/sigzag/pkg/crawler"
 	"github.com/gocolly/colly/v2"
+	"log"
 	"strings"
 )
 
@@ -35,6 +36,11 @@ func (s *Scraper) Crawl() error {
 		fmt.Printf("Link found: %q -> %s\n", e.Text, link)
 		linkSplit := strings.Split(link, ".")
 		extension := linkSplit[len(linkSplit)-1]
+		if extension == crawler.TXT.Strings() && strings.ToLower(linkSplit[len(linkSplit)-2]) == crawler.ROBOTS.Strings() {
+			filename := strings.ToLower(linkSplit[len(linkSplit)-2])
+			fmt.Printf("%s.%s found\n", filename, extension)
+			log.Fatal("Crawl terminated")
+		}
 		if extension == crawler.XLSX.Strings() || extension == crawler.XLSM.Strings() ||
 			extension == crawler.XLSB.Strings() || extension == crawler.CSV.Strings() ||
 			extension == crawler.ARFF.Strings() || extension == crawler.IPYNB.Strings() ||

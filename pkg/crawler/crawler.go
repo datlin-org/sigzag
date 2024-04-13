@@ -64,6 +64,8 @@ const (
 	BIN
 	PDF
 	GZ
+	TXT
+	ROBOTS
 )
 
 func (e Extension) Strings() string {
@@ -79,6 +81,8 @@ func (e Extension) Strings() string {
 		"bin",
 		"pdf",
 		"gz",
+		"txt",
+		"robots",
 	}[e]
 }
 
