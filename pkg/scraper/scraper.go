@@ -27,7 +27,7 @@ func (s *Scraper) Scrape(config Config) {
 
 func (s *Scraper) Crawl() error {
 	c := colly.NewCollector(
-	//colly.AllowedDomains("england.nhs.uk"),
+	//colly.AllowedDomains(""),
 	)
 
 	// On every a element which has href attribute call callback

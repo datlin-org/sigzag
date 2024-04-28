@@ -7,13 +7,13 @@
 SigZag is a small utility for signing digital assets and generating local manifests 
 for **data centric workloads**. 
 
-Managing the provenance, lineage and integrity of data ingress, transformation and egress can be challenging.
+Managing the provenance and integrity of data ingress, transformation and egress can be challenging.
 The difficulty can be exacerbated when using large open data sets. Accidental and in some instance malicious changes to
 data can occur when data wrangling and munging.
 
 The SigZag utility is useful for:
 
-- Cryptographically signing content, both the file and data (including database).
+- Cryptographically signing content, both the file and data (including database TBC).
 - Generating manifests for signed data in JSON format (gRPC TBC).
 - Tracking the history of a data assets. 
 - Checking, comparing and monitoring the integrity of data in common file formats (csv, xlsx, xlsm, xml, json, jupyter 

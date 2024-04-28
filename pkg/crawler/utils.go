@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -302,4 +303,42 @@ func WriteDownloadManifest(res []*UrlResult) {
 		return
 	}
 	toFile(DOWNLOAD, marshal)
+}
+
+func ValidateUrl(url string) (string, bool, error) {
+	var httpSchema = regexp.MustCompile(`^https?:`)
+	if httpSchema.Match([]byte(url)) {
+		return url, true, nil
+	}
+	urlComponents := strings.Split(url, ":")
+	prefix := urlComponents[0]
+	err := fmt.Errorf("expected: 'https:' prefix, actual %s", prefix)
+	return "", false, err
+}
+
+func ValidateExt(url string) bool {
+	urlComponents := strings.Split(url, "/")
+	extComponents := strings.Split(urlComponents[len(urlComponents)-1], ".")
+	ext := extComponents[len(extComponents)-1]
+	v := []string{
+		XLSX.Strings(),
+		XLSB.Strings(),
+		XLSM.Strings(),
+		CSV.Strings(),
+		ARFF.Strings(),
+		IPYNB.Strings(),
+		PARQUET.Strings(),
+		ZIP.Strings(),
+		BIN.Strings(),
+		PDF.Strings(),
+		GZ.Strings(),
+		TXT.Strings(),
+	}
+
+	for _, i := range v {
+		if i == ext {
+			return true
+		}
+	}
+	return false
 }

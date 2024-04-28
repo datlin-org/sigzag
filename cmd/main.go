@@ -38,16 +38,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("path error: %s", err)
 	}
-	length := len(strings.Split(path, string(os.PathSeparator)))
-	levelStart := length - 1
-	config := crawler.Config{
-		Root:    levelStart,
-		Depth:   *level + 1,
-		TagFile: *tagFile,
-		OutDir:  *out,
-		Url:     *url,
-		Urls:    *urls,
-	}
+
+	config, _ := CrawlerConfig(level, tagFile, out, url, urls, path)
 
 	if !*compareManifest && !*compareMerkle && !*diffManifest && !*history && *asset == crawler.ASSET.Strings() &&
 		*url == crawler.URL.Strings() && *urls == crawler.URLS.Strings() && *datasource == crawler.DATASOURCE.Strings() {
@@ -91,4 +83,21 @@ func main() {
 		var m crawler.Manager
 		m.Compare(flag.Args()[0], flag.Args()[1], crawler.MERKLETREE)
 	}
+}
+
+func CrawlerConfig(level *int, tagFile *string, out *string, url *string, urls *string, path string) (crawler.Config, error) {
+	length := len(strings.Split(path, string(os.PathSeparator)))
+	levelStart := length - 1
+	validUrl, valid, err := crawler.ValidateUrl(*url)
+	if !valid {
+		return crawler.Config{}, err
+	}
+	return crawler.Config{
+		Root:    levelStart,
+		Depth:   *level + 1,
+		TagFile: *tagFile,
+		OutDir:  *out,
+		Url:     validUrl,
+		Urls:    *urls,
+	}, nil
 }

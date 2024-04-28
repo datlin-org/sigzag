@@ -1,4 +1,5 @@
 FROM golang:latest AS build
+MAINTAINER Kevin Fasusi <kevin.fasusi@gmail.com>
 
 WORKDIR /src
 
