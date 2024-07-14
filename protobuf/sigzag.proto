@@ -1,0 +1,67 @@
+syntax = "proto3";
+option go_package = "../pkg/services";
+
+service Pipeline{
+  rpc CreatePipeline(Config) returns (Service);
+  rpc LogTransaction(Transaction) returns (Log);
+}
+
+// Config identifies the pipeline being logged
+message Config {
+  string PipelineID = 1;
+  string PipelineName = 2;
+  PipelineType PipelineType = 3;
+}
+
+// ServiceInfo details the service that has been created for the pipeline
+message Service{
+  string ServiceID = 1;
+  PipelineType PipelineType = 2;
+  string PipelineName = 3;
+  string PipelineId = 4;
+}
+
+// PipeType Pipeline options
+enum PipeType{
+  PIPE_UNSPECIFIED = 0;
+  INGRESS = 1;
+  EGRESS = 2;
+  EXTRACT = 3;
+  TRANSFORM = 4;
+  LOAD = 5;
+}
+
+enum WorkFlow {
+  WORKLOAD_UNSPECIFIED = 0;
+  AI = 1;
+  ML = 2;
+}
+// PipelineType sets the type of pipeline and services available
+message PipelineType {
+  PipeType PipeType = 1;
+  WorkFlow WorkFlow = 2;
+  bool Active = 3;
+}
+
+enum DataSourceType {
+  LocalFile = 0;
+  NetworkFile = 1;
+  Database = 2;
+  API = 3;
+}
+
+// Transaction is an entry to the TransactionLog
+message Transaction {
+  string TransactionID = 1;
+  Service Service = 2;
+  string FunctionName = 3;
+  string DataSourceHash = 4;
+  string DataSourceLocationHash = 5;
+
+}
+
+// Log for the logging all transactions for a pipeline
+message Log {
+  string LogID = 1;
+  repeated Transaction Transaction = 2;
+}

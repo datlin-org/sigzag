@@ -3,7 +3,7 @@ package scanner
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/KevinFasusi/sigzag/pkg/crawler"
+	"github.com/datlin-org/sigzag/pkg/crawler"
 	"io"
 	"os"
 	"path/filepath"

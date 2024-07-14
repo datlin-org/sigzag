@@ -2,7 +2,7 @@ package scraper
 
 import (
 	"fmt"
-	"github.com/KevinFasusi/sigzag/pkg/crawler"
+	"github.com/datlin-org/sigzag/pkg/crawler"
 	"github.com/gocolly/colly/v2"
 	"log"
 	"strings"

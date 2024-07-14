@@ -24,7 +24,7 @@ notebooks, parquet, txt, zip, etc.).
 Clone repository:
 
 ```shell
-git clone https://github.com/KevinFasusi/sigzag.git
+git clone https://github.com/datalin-org/sigzag.git
 ```
 
 Build:
@@ -269,4 +269,4 @@ Match: true
 | --datasource       | Search url for data sources with common extensions                                         |
 
 <!-- refs -->
-[license-badge]: https://img.shields.io/github/license/KevinFasusi/sigzag
+[license-badge]: https://img.shields.io/github/license/datlin-org/sigzag
